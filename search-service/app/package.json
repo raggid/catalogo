@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "@elastic/elasticsearch": "7",
+    "body-parser": "^1.19.0",
+    "config": "^3.3.6",
+    "consign": "^0.1.6",
+    "cors": "^2.8.5",
+    "debug": "^4.3.1",
+    "express": "^4.17.1",
+    "helmet": "^4.6.0",
+    "yarn": "^1.22.10"
+  },
+  "scripts": {
+    "dev": "nodemon server"
+  },
+  "name": "search-service",
+  "version": "1.0.0",
+  "description": "Provides search APIs for products",
+  "main": "index.js",
+  "author": "Antonio Tomaz",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^15.0.1",
+    "nodemon": "^2.0.7",
+    "typescript": "^4.2.4"
+  }
+}

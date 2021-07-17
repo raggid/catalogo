@@ -1,0 +1,26 @@
+.container {
+  border: 1px solid var(--gray-200);
+  border-radius: 1rem;
+
+  display: grid;
+  grid-template-columns: 10rem 1fr 1fr 1fr;
+  gap: 1rem;
+
+  height: 10rem;
+  padding: 1rem;
+
+  .details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.5rem;
+  }
+  .techSpecs{
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .applications{
+    overflow-y: auto;
+  }
+
+}

@@ -1,0 +1,140 @@
+version: "3"
+services: 
+    postgres: 
+        image: postgres
+        container_name: catalog_postgres
+        hostname: postgres
+        restart: unless-stopped
+        ports:
+          - 55432:5432
+        environment:
+          POSTGRES_PASSWORD: catalogAdmin!
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.1
+
+    pgAdmin:
+        image: dpage/pgadmin4
+        container_name: catalog_pgadmin
+        environment: 
+            - "PGADMIN_DEFAULT_EMAIL=antonio@gmail.com.br"
+            - "PGADMIN_DEFAULT_PASSWORD=catalogAdmin!"
+        restart: unless-stopped
+        depends_on: 
+            - postgres
+        ports:
+            - 55433:80
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.2
+
+    elasticsearch:
+        image: elasticsearch:7.4.2
+        container_name: catalog_elasticsearch
+        hostname: elasticsearch
+        environment:
+            - bootstrap.memory_lock=true
+            - cluster.name=Catalogo
+            - node.name=main
+            - discovery.type=single-node
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            # - "network.publish_host=192.168.0.31"
+            - memory="2g"
+            - memory-swap="2g"
+            - "TAKE_FILE_OWNERSHIP=1"
+        volumes:
+            - elasticsearch:/usr/share/elasticsearch/data
+        restart: unless-stopped
+        ports:
+            - 59200:9200
+            - 59300:9300
+        deploy:
+            resources:
+                limits:
+                    memory: 2g
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
+        cap_add:
+            - IPC_LOCK
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.3
+
+    cerebro:
+        image: lmenezes/cerebro
+        ports:
+            - 59000:9000
+        restart: unless-stopped
+        deploy:
+            resources:
+                limits:
+                    memory: 1g
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.4
+
+    catalog-service:
+        build: 
+            context: catalog-service
+        container_name: catalog_service
+        environment: 
+            - db_type=postgresql
+            - db_server=postgres
+            - db_name=postgres
+            - db_user=postgres
+            - db_passwd=catalogAdmin!
+            - es_host=elasticsearch
+        hostname: catalog-service
+        restart: unless-stopped
+        ports:
+            - 58000:80
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.5
+
+    search-service:
+        build:
+            context: search-service
+        container_name: catalog_search-service
+        hostname: search-service
+        restart: unless-stopped
+        ports: 
+            - 57000:80
+        environment:
+            - NODE_ENV=production
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.6
+
+    web-store:
+        build:
+            context: web-store
+        container_name: catalog_web-store
+        hostname: web-store
+        restart: unless-stopped
+        ports: 
+            - 56000:3000
+        networks:
+            catalog: 
+                ipv4_address: 172.28.28.7
+
+
+
+volumes:
+    elasticsearch:
+        driver: local
+    postgres:
+        driver: local
+
+
+networks: 
+    catalog:
+        driver: bridge
+        ipam:
+            config:
+            - subnet: 172.28.28.0/16
